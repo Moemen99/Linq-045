@@ -320,3 +320,90 @@ var list = query.ToList(); // Immediate execution
 ```
 
 Understanding this behavior is crucial for optimizing LINQ query performance, especially when working with large datasets.
+
+
+
+# LINQ Casting Operators and Hash-Based Collections
+
+## Casting Operators (continued)
+
+### ToDictionary() with Key and Value Selectors
+
+You can create a Dictionary with custom keys and values using two selector functions:
+
+```csharp
+Dictionary<long, string> dictionary02 = ProductList
+    .Where(p => p.UnitsInStock == 0)
+    .ToDictionary(p => p.ProductId, p => p.ProductName);
+```
+
+In this example:
+- `p => p.ProductId` is the key selector (produces a long)
+- `p => p.ProductName` is the value selector (produces a string)
+
+### ToHashSet()
+
+Converts the result of a LINQ query to a HashSet<T>.
+
+```csharp
+HashSet<Product> hashset = ProductList
+    .Where(p => p.UnitsInStock == 0)
+    .ToHashSet();
+```
+
+## Hash-Based Collections
+
+Hash-based collections in C# (like Dictionary<TKey, TValue> and HashSet<T>) use hash tables for efficient data storage and retrieval.
+
+### How Hash Tables Work
+
+1. Hashing: When an element is added to the collection, its key is passed through a hash function (GetHashCode() in C#) to generate a unique hash code.
+
+2. Bucketing: The hash code is used to determine which "bucket" the element belongs to. A bucket is a group of elements with similar hash codes.
+
+3. Storage: The element is stored in its assigned bucket.
+
+4. Retrieval: When searching for an element, the key's hash code is calculated, the appropriate bucket is located, and then only the elements in that bucket are searched.
+
+### Advantages of Hash-Based Collections
+
+1. Fast Lookup: O(1) average case time complexity for insertions, deletions, and lookups.
+2. Unique Keys: Ensures that each key in the collection is unique (for Dictionary and HashSet).
+3. Efficient for Large Datasets: Performance remains relatively constant regardless of the number of elements.
+
+### Dictionary vs HashSet
+
+| Aspect | Dictionary<TKey, TValue> | HashSet<T> |
+|--------|--------------------------|------------|
+| Storage | Key-Value Pairs | Only Keys (Values are null) |
+| Usage | When you need to associate data with keys | When you only need to store unique elements |
+| Lookup | By Key | By Element (which acts as its own key) |
+
+## Best Practices for Hash-Based Collections
+
+1. Implement GetHashCode() and Equals() methods properly for custom types used as keys.
+2. Choose an appropriate initial capacity to minimize rehashing.
+3. Be aware that the order of elements is not guaranteed in hash-based collections.
+4. Use Dictionary when you need to associate values with keys, and HashSet when you only need to store unique elements.
+
+## LINQ and Hash-Based Collections
+
+When using LINQ with hash-based collections:
+
+1. ToHashSet() and ToDictionary() provide immediate execution, materializing the results into the respective collection types.
+2. These methods are useful when you need fast lookup capabilities in your resulting collection.
+3. Be cautious with large datasets, as these methods will enumerate the entire source sequence.
+
+```mermaid
+graph TD
+    A[Choose Collection] --> B{Need key-value pairs?}
+    B -->|Yes| C[Use Dictionary]
+    B -->|No| D{Need only unique elements?}
+    D -->|Yes| E[Use HashSet]
+    D -->|No| F[Consider List or Array]
+    C --> G[ToDictionary]
+    E --> H[ToHashSet]
+    F --> I[ToList or ToArray]
+```
+
+This diagram illustrates the decision process for choosing between Dictionary, HashSet, and other collection types when working with LINQ results.
