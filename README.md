@@ -111,13 +111,13 @@ Console.WriteLine(result);
 
 ```mermaid
 graph TD
-    A[Aggregate Operation] --> B{Need to compare whole objects?}
-    B -->|Yes| C{Can modify class?}
+    A[Aggregate Operation] --> B{"Need to compare whole objects?"}
+    B -->|Yes| C{"Can modify class?"}
     C -->|Yes| D[Implement IComparable]
     C -->|No| E[Use selector overload]
     B -->|No| E
-    D --> F[Use basic overload e.g. Max()]
-    E --> G[Use selector overload e.g. Max(p => p.Property)]
+    D --> F["Use basic overload (e.g. Max())"]
+    E --> G["Use selector overload (e.g. Max(p => p.Property))"]
 ```
 
 This diagram illustrates the decision process for choosing between basic and selector overloads of aggregate operators.
