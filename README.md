@@ -499,3 +499,257 @@ List<Product> Products = new List<Product>();
 - `Empty()` is more efficient than creating new empty collections
 - `Range` and `Repeat` use deferred execution, only generating values when enumerated
 - Memory usage is optimized through deferred execution
+# LINQ Set Operators
+
+## Overview
+Set operators in LINQ implement set theory operations on sequences. These operators use deferred execution and belong to the Union Family of operators.
+
+```mermaid
+graph TD
+    A[Set Operators] --> B[Union]
+    A --> C[UnionAll/Concat]
+    A --> D[Intersect]
+    A --> E[Except]
+    
+    B --> F[Combines + removes duplicates]
+    C --> G[Combines keeping duplicates]
+    D --> H[Common elements]
+    E --> I[Difference between sets]
+```
+
+## Sample Data Setup
+```csharp
+// First sequence: Numbers 0-99
+var Seq01 = Enumerable.Range(0, 100);
+
+// Second sequence: Numbers 50-149
+var Seq02 = Enumerable.Range(50, 100);
+```
+
+## Operator Details
+
+### 1. Union
+Combines two sequences and removes duplicates.
+```csharp
+var Result = Seq01.Union(Seq02); // Results: 0-149 (no duplicates)
+
+// Union is equivalent to:
+Result = Seq01.Concat(Seq02).Distinct();
+```
+
+| Operation | Input 1 | Input 2 | Result |
+|-----------|---------|---------|--------|
+| Union | [0-99] | [50-149] | [0-149] |
+
+### 2. UnionAll (Concat)
+Combines two sequences keeping all duplicates.
+```csharp
+var Result = Seq01.Concat(Seq02); // Results: 0-99, 50-149 (with duplicates)
+```
+
+| Operation | Input 1 | Input 2 | Result |
+|-----------|---------|---------|--------|
+| Concat | [0-99] | [50-149] | [0-99, 50-149] |
+
+### 3. Intersect
+Returns elements that exist in both sequences.
+```csharp
+var Result = Seq01.Intersect(Seq02); // Results: 50-99
+```
+
+| Operation | Input 1 | Input 2 | Result |
+|-----------|---------|---------|--------|
+| Intersect | [0-99] | [50-149] | [50-99] |
+
+### 4. Except
+Returns elements from the first sequence that don't exist in the second sequence.
+```csharp
+// Elements in Seq01 but not in Seq02
+var Result = Seq01.Except(Seq02); // Results: 0-49
+
+// Elements in Seq02 but not in Seq01
+Result = Seq02.Except(Seq01); // Results: 100-149
+```
+
+| Operation | First Sequence | Second Sequence | Result |
+|-----------|----------------|-----------------|--------|
+| Except (Seq01) | [0-99] | [50-149] | [0-49] |
+| Except (Seq02) | [50-149] | [0-99] | [100-149] |
+
+## Key Characteristics
+
+1. **Deferred Execution**: All set operators implement deferred execution
+2. **Extension Methods**: Available as extension methods on `IEnumerable<T>`
+3. **SQL Equivalence**: Mirror SQL set operations
+4. **Order**: Result order may vary based on the implementation
+
+## Visual Representation of Set Operations
+
+```mermaid
+graph TB
+    subgraph Union
+        U1[Seq01: 0-99] --> U3[Result: 0-149]
+        U2[Seq02: 50-149] --> U3
+    end
+    
+    subgraph Intersect
+        I1[Seq01: 0-99] --> I3[Result: 50-99]
+        I2[Seq02: 50-149] --> I3
+    end
+    
+    subgraph Except
+        E1[Seq01: 0-99] --> E3[Result: 0-49]
+        E2[Seq02: 50-149] ---x E3
+    end
+```
+
+## Usage Examples
+```csharp
+// Display results
+foreach (var item in Result)
+    Console.Write($"{item} ");
+```
+
+## Common Use Cases
+
+1. **Union**: Combining unique items from multiple sources
+2. **Concat**: Appending sequences without removing duplicates
+3. **Intersect**: Finding common elements
+4. **Except**: Finding unique elements in one set
+
+## Performance Considerations
+
+- Set operations require comparisons between elements
+- Large sequences may impact performance
+- Consider using HashSet<T> for better performance in some scenarios
+
+
+
+# LINQ Set Operators
+
+## Overview
+Set operators in LINQ implement set theory operations on sequences. These operators use deferred execution and belong to the Union Family of operators.
+
+```mermaid
+graph TD
+    A[Set Operators] --> B[Union]
+    A --> C[UnionAll/Concat]
+    A --> D[Intersect]
+    A --> E[Except]
+    A --> F[Distinct]
+    
+    B -->|Equivalent to| G[Concat + Distinct]
+    C --> H[Combines keeping duplicates]
+    D --> I[Common elements]
+    E --> J[Difference between sets]
+    F --> K[Removes duplicates]
+```
+
+## Union and Distinct Relationship
+```csharp
+// These two operations are equivalent:
+var Result1 = Seq01.Union(Seq02);
+var Result2 = Seq01.Concat(Seq02).Distinct();
+```
+
+## Sample Data Setup
+```csharp
+// First sequence: Numbers 0-99
+var Seq01 = Enumerable.Range(0, 100);
+
+// Second sequence: Numbers 50-149
+var Seq02 = Enumerable.Range(50, 100);
+```
+
+## Operator Details
+
+### 1. Union
+Combines two sequences and removes duplicates. Can be achieved in two ways:
+```csharp
+// Method 1: Direct Union
+var Result = Seq01.Union(Seq02); // Results: 0-149 (no duplicates)
+
+// Method 2: Concat + Distinct
+Result = Seq01.Concat(Seq02).Distinct(); // Same result: 0-149 (no duplicates)
+```
+
+| Operation | Implementation | Result |
+|-----------|---------------|---------|
+| Union | Direct | [0-149] |
+| Concat + Distinct | Two-step | [0-149] |
+
+### 2. Distinct
+Removes duplicate elements from a sequence.
+```csharp
+// Remove duplicates from a sequence
+var duplicateSequence = Seq01.Concat(Seq02); // Contains duplicates (50-99 appear twice)
+var uniqueSequence = duplicateSequence.Distinct(); // Removes duplicates
+```
+
+Example with duplicate numbers:
+```csharp
+var numbersWithDuplicates = new[] { 1, 1, 2, 3, 3, 4, 5, 5 };
+var uniqueNumbers = numbersWithDuplicates.Distinct(); // Results: 1, 2, 3, 4, 5
+```
+
+### 3. UnionAll (Concat)
+Combines two sequences keeping all duplicates.
+```csharp
+var Result = Seq01.Concat(Seq02); // Results: 0-99, 50-149 (with duplicates)
+```
+
+### 4. Intersect
+Returns elements that exist in both sequences.
+```csharp
+var Result = Seq01.Intersect(Seq02); // Results: 50-99
+```
+
+### 5. Except
+Returns elements from the first sequence that don't exist in the second sequence.
+```csharp
+// Elements in Seq01 but not in Seq02
+var Result = Seq01.Except(Seq02); // Results: 0-49
+
+// Elements in Seq02 but not in Seq01
+Result = Seq02.Except(Seq01); // Results: 100-149
+```
+
+## Visual Representation of Union vs Concat+Distinct
+
+```mermaid
+graph TB
+    subgraph "Method 1: Union"
+        U1[Seq01: 0-99] --> U3[Union]
+        U2[Seq02: 50-149] --> U3
+        U3 --> UR[Result: 0-149]
+    end
+    
+    subgraph "Method 2: Concat + Distinct"
+        C1[Seq01: 0-99] --> C3[Concat]
+        C2[Seq02: 50-149] --> C3
+        C3 --> C4[Distinct]
+        C4 --> CR[Result: 0-149]
+    end
+```
+
+## Key Points About Union and Distinct
+
+1. **Union = Concat + Distinct**
+   - Union automatically removes duplicates
+   - Same result can be achieved by concatenating and then removing duplicates
+
+2. **When to Use Each Approach**
+   - Use Union when you want a single operation
+   - Use Concat + Distinct when you need more control or want to perform operations between steps
+
+3. **Performance Considerations**
+   - Union might be more optimized internally
+   - Concat + Distinct requires two separate operations
+   - Both achieve the same result but might have different performance characteristics with large datasets
+
+## Display Results
+```csharp
+// Display results
+foreach (var item in Result)
+    Console.Write($"{item} ");
+```
